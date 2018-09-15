@@ -1,3 +1,4 @@
+#!/bin/bash
 # 重置brew.git:
 cd "$(brew --repo)"
 git remote set-url origin https://github.com/Homebrew/brew.git
