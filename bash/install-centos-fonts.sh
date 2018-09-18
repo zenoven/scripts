@@ -11,12 +11,14 @@ commanExists(){
   if command -v $1 >/dev/null 2>&1; then
     exists=1
   fi
-  return exists
+  return $exists
 }
 
 # 安装某个命令
 installCommand(){
-  if [ $(commanExists $1) -eq 0 ]; then
+  commanExists $1
+  exists=$?
+  if [ $exists -eq 0 ]; then
     echo "${$1} not installed, start installing..."
     yum -y install $1
     if $? -eq 0; then
@@ -42,12 +44,15 @@ if [ ! -d $fonts_dir ]; then
   cd $customize_dir_name
 fi
 
-cd fonts_dir
+cd $fonts_dir
 
 for font in $@; do
-  name=${font##/*}
-  name=customize_$name$#
-  download $font "${fonts_dir}/${name}"
+  name=${font##*/}
+  name=customize_$name
+  name=${fonts_dir}/${name}
+  echo "## downloading font from ${font} ..."
+  download $font $name
+  echo "## ${font} downloaded successfully"
 done
 
 mkfontscale
