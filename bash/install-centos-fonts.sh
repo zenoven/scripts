@@ -30,7 +30,7 @@ installCommand(){
 }
 
 download(){
-  wget -c $1 -O $2
+  wget -c --no-verbose $1 -O $2
 }
 
 for command in ${commands[@]}; do
