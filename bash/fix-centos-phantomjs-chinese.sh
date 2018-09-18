@@ -1,10 +1,55 @@
 #!/bin/bash
+fonts_base=/usr/share/fonts
+customize_dir_name=customize
+fonts_dir="${fonts_base}/${customize_dir_name}"
+commands=(wget mkfontscale mkfontdir)
 
-yum -y install bitmap-fonts bitmap-fonts-cjk
-yum -y install mkfontscale fontconfig
-mkdir /usr/share/fonts/win/
-wget https://github.com/chenqing/ng-mini/blob/master/font/msyh.ttf?raw=true -O /usr/share/fonts/win/msyh.ttf --no-check-certificate
-cd /usr/share/fonts/win/
+# 判断一个命令是否存在
+commanExists(){
+  # 0不存在  1存在
+  exists=0
+  if command -v $1 >/dev/null 2>&1; then
+    exists=1
+  fi
+  return exists
+}
+
+# 安装某个命令
+installCommand(){
+  if [ $(commanExists $1) -eq 0 ]; then
+    echo "${$1} not installed, start installing..."
+    yum -y install $1
+    if $? -eq 0; then
+      echo "${$1} installed successfully"
+    else
+      echo "${$1} fontconfig failed"
+    fi
+  fi
+}
+
+download(){
+  wget -c $1 -O $2
+}
+
+for command in ${commands[@]}; do
+  installCommand $command
+done
+
+if [ ! -d $fonts_dir ]; then
+  su
+  cd $fonts_base
+  mkdir $customize_dir_name
+  cd $customize_dir_name
+fi
+
+cd fonts_dir
+
+for font in $@; do
+  name=${font##/*}
+  name=customize_$name$#
+  download $font "${fonts_dir}/${name}"
+done
+
 mkfontscale
 mkfontdir
 fc-cache
